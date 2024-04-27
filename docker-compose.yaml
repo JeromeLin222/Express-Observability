@@ -23,3 +23,10 @@ services:
       - ./etc/prometheus:/workspace
     command: 
       - --config.file=/workspace/prometheus.yml
+
+  express:
+    build: ./app_express/
+    container_name: app_express
+    ports:
+      - "8080:8080"
+    command: "npm start"

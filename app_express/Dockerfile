@@ -12,8 +12,6 @@ FROM node:18-slim
 
 WORKDIR /usr/src/app
 
-# COPY --from=builder /usr/src/app/node_modules .
-# COPY --from=builder /usr/src/app/package*.json .
 COPY --from=builder /usr/src/app .
 
 EXPOSE 8080

@@ -1,7 +1,7 @@
 x-logging: &default-logging
   driver: loki
   options:
-    loki-url: 'http://localhost:3100/api/prom/push'
+    loki-url: 'http://localhost:3101/api/prom/push'
 
 
 version: "3.7"
@@ -32,6 +32,7 @@ services:
     volumes:
       - ./etc/prometheus:/workspace
     command: 
+      - "--enable-feature=remote-write-receiver"
       - --config.file=/workspace/prometheus.yml
     depends_on:
       - loki
@@ -56,15 +57,31 @@ services:
     image: grafana/loki:2.9.0
     container_name: loki
     ports:
-      - 3100:3100
+      - 3101:3100
     command: -config.file=/etc/loki/local-config.yaml
 
+
+
+  tempo:
+    image: grafana/tempo:latest
+    container_name: tempo
+    volumes:
+      - ./etc/tempo/tempo.yaml:/etc/tempo/config.yaml
+    command: -config.file=/etc/tempo/config.yaml
+    ports:
+      - "3100"
+      - "4317"
+      - "4318"
+   
 
   express:
     build: ./app_express/
     container_name: app_express
     ports:
       - "8000:8000"
+    environment:
+      - OTEL_EXPORTER_OTLP_ENDPOINT=http://tempo:4318
+      - OTEL_SERVICE_NAME=express-app
     command: "npm start"
     depends_on:
       - loki

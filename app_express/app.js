@@ -4,6 +4,10 @@ const app = express()
 
 const port = 8000
 
+function getRandomNumber(min, max) {
+    return Math.floor(Math.random() * (max - min) + min)
+}
+
 app.use(promMid({
     metricsPath: '/metrics',
     collectDefaultMetrics: true,
@@ -16,6 +20,11 @@ app.get('/', (req, res) => {
     console.log('Get express /')
     res.json({message: 'Express app with prometheus metrics.'})
 })
+
+
+app.get('/rolldice', (req, res) => {
+    res.send(getRandomNumber(1, 6).toString());
+  });
 
 app.listen(port, () => {
     console.log(`express server is running on http://localhost:${port}`)

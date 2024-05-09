@@ -33,6 +33,7 @@ services:
       - ./etc/prometheus:/workspace
     command: 
       - "--enable-feature=remote-write-receiver"
+      - "--enable-feature=exemplar-storage"
       - --config.file=/workspace/prometheus.yml
     depends_on:
       - loki

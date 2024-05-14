@@ -1,13 +1,13 @@
 const express = require('express')
-// const promMid = require('express-prometheus-middleware')
 const { register, recordRequest } = require('./metrics')
+const { propagation, context, diag, trace } = require('@opentelemetry/api')
+const axios = require('axios')
+const { logger, logRequest } = require('./logging')
+
+
 const app = express()
 
 const port = 8000
-
-function getRandomNumber(min, max) {
-    return Math.floor(Math.random() * (max - min) + min)
-}
 
 app.use((req, res, next) => {
     const start = process.hrtime()
@@ -19,17 +19,14 @@ app.use((req, res, next) => {
     next()
 })
 
-// app.use(promMid({
-//     metricsPath: '/metrics',
-//     collectDefaultMetrics: true,
-//     requestDurationBuckets: [0.1, 0.5, 1, 1.5],
-//     requestLengthBuckets: [512, 1024, 5120, 10240, 51200, 102400],
-//     responseLengthBuckets: [512, 1024, 5120, 10240, 51200, 102400]
-// }))
+app.use(logRequest)
+
+
 
 app.get('/', (req, res) => {
-    console.log('Get express /')
-    res.json({message: 'Express app with prometheus metrics.'})
+    console.log('Get express/')
+    res.json({ message: 'Express app with prometheus metrics.' })
+
 })
 
 app.get('/metrics', async (req, res) => {
@@ -37,11 +34,32 @@ app.get('/metrics', async (req, res) => {
     res.end(await register.metrics())
 })
 
+// app.get('/metrics', async (req, res) => {
+//     const ctx = propagation.extract(context.active(), req.headers)
+//     const newCtx = trace.setSpan(context.active(), undefined)
+//     await context.with(newCtx, async () => {
+//         res.set('Content-Type', register.contentType)
+//         res.end(await register.metrics())
+//     })
+// })
 
-app.get('/rolldice', (req, res) => {
-    res.send(getRandomNumber(1, 6).toString());
-  });
+app.get('/simulate-io', async (req, res) => {
+    await new Promise(resolve => setTimeout(resolve, 3000)); // Simulate a 5-second delay
+    res.send('IO operation completed');
+});
+
+app.get('/randomstatus', (req, res) => {
+    const statusCodes = [200, 201, 204, 400, 401, 404, 500]
+    const randomStatusCode = statusCodes[Math.floor(Math.random() * statusCodes.length)]
+    res.sendStatus(randomStatusCode)
+})
+
+
+
+// Call the function to start sending random requests
+// setInterval(sendRandomRequests, 5000) // Send a request every 5 seconds
 
 app.listen(port, () => {
+    logger.info(`express server is running on http://localhost:${port}`)
     console.log(`express server is running on http://localhost:${port}`)
 })

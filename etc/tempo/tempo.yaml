@@ -14,6 +14,13 @@ ingester:
   trace_idle_period: 10s
   max_block_bytes: 1_000_000
 
+compactor:
+  compaction:
+    compaction_window: 1h
+    max_block_bytes: 1_000_000
+    block_retention: 1h
+    compacted_block_retention: 10m
+
 
 storage:
   trace:
@@ -29,7 +36,16 @@ metrics_generator:
   processor:
     span_metrics:
       dimensions:
+        - http.method
+        - http.target
         - http.status_code
+
+    service_graphs:
+      dimensions:
+        - http.method
+        - http.target
+        - http.status_code
+      
 
 overrides:
   metrics_generator_processors:

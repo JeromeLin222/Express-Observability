@@ -44,7 +44,7 @@ app.get('/metrics', async (req, res) => {
 // })
 
 app.get('/simulate-io', async (req, res) => {
-    await new Promise(resolve => setTimeout(resolve, 3000)); // Simulate a 5-second delay
+    await new Promise(resolve => setTimeout(resolve, 500)); // Simulate a 5-second delay
     res.send('IO operation completed');
 });
 
@@ -60,6 +60,6 @@ app.get('/randomstatus', (req, res) => {
 // setInterval(sendRandomRequests, 5000) // Send a request every 5 seconds
 
 app.listen(port, () => {
-    logger.info(`express server is running on http://localhost:${port}`)
+    // logger.info(`express server is running on http://localhost:${port}`)
     console.log(`express server is running on http://localhost:${port}`)
 })

@@ -1,34 +1,32 @@
 const { context, trace } = require('@opentelemetry/api')
-const { createLogger, format, level } = require('winston')
-const  LokiTransport  = require('winston-loki')
-
+const { createLogger, format, level, transports } = require('winston')
+const LokiTransport = require('winston-loki')
+const myFormat = format.printf(({ level, message, trace_id, span_id, method, path, httpVersion, status }) => {
+    return `${level}: ${message}, "trace_id":"${trace_id}", "span_id":"${span_id}", "${method} ${path} HTTP/${httpVersion}" ${status}`
+})
 const logger = createLogger({
     level: 'info',
-    format: format.json(),
-    transports: [
-        new LokiTransport({
-            host: 'http://loki:3100',
-            json: true,
-            labels: { app: 'express' },
-        }),
-    ],
+    defaultMeta: { service: 'express' },
+    format: format.combine(
+        format.json(),
+        myFormat
+    ),
+    transports: [new transports.Console()],
 })
 
 function logRequest(req, res, next) {
     const currentSpan = trace.getSpan(context.active())
     res.on('finish', () => {
-        const dynamicLabels = {
-            method: req.method,
-            route: req.path,
-            status: res.statusCode.toString(),
-            ip: req.ip,
-            traceID: currentSpan ? currentSpan.spanContext().traceId : 'unknown',
-        }
 
         const logMessage = {
-            message: 'HTTP request',
-            labels: dynamicLabels,
             level: 'info',
+            message: 'http request',
+            trace_id: currentSpan ? currentSpan.spanContext().traceId : 'unknown',
+            span_id: currentSpan ? currentSpan.spanContext().spanId : 'unknown',
+            method: req.method,
+            path: req.path,
+            httpVersion: req.httpVersion,
+            status: res.statusCode,
         }
         if (res.statusCode >= 500) {
             logMessage.message = 'Server error'

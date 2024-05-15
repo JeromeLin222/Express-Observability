@@ -1,4 +1,5 @@
 etc/grafana/data/*
+logging_old.js
 
 # Logs
 logs

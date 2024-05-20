@@ -1,8 +1,7 @@
 const { context, trace } = require('@opentelemetry/api')
 const { createLogger, format, level, transports } = require('winston')
-const LokiTransport = require('winston-loki')
 const myFormat = format.printf(({ level, message, trace_id, span_id, method, path, httpVersion, status }) => {
-    return `${level}: ${message}, "trace_id":"${trace_id}", "span_id":"${span_id}", "${method} ${path} HTTP/${httpVersion}" ${status}`
+    return `${level}: ${message}, "trace_id":"${trace_id}", "span_id":"${span_id}", "${method} ${path} HTTP/${httpVersion} ${status}"`
 })
 const logger = createLogger({
     level: 'info',

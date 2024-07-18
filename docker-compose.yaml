@@ -16,10 +16,8 @@ version: "3.7"
 services:
 
   grafana:
-    image: grafana/grafana:10.1.0
+    image: grafana/grafana:10.4.2
     container_name: grafana
-    environment:
-      GF_FEATURE_TOGGLES_ENABLE: "traceToMetrics"
     ports:
       - 3000:3000
     volumes:
@@ -110,6 +108,7 @@ services:
     depends_on:
       - loki
     logging: *default-logging
+    
 
   app-3:
     build: ./app_express/

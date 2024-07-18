@@ -1,7 +1,7 @@
 const express = require('express')
-const { register, prometheusMetricsMiddleware, errorMiddleware } = require('./metrics')
+const { register, prometheusMetricsMiddleware, errorMiddleware } = require('./middlewares/metrics')
 const axios = require('axios')
-const { logger, logRequest } = require('./logging')
+const { logger, logRequest } = require('./middlewares/logging')
 
 
 const app = express()

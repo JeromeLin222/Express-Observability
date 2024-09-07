@@ -4,7 +4,7 @@ x-logging: &default-logging
     loki-url: 'http://localhost:3101/api/prom/push'
     loki-pipeline-stages: |
       - multiline:
-          firstline: '^Error:'
+          firstline: "^\\S"
           max_wait_time: 3s
       - regex:
           expression: '^(?P<time>\d{4}-\d{2}-\d{2} \d{1,2}:\d{2}:\d{2},d{3}) (?P<message>(?s:.*))$$'
@@ -42,21 +42,6 @@ services:
       - "--enable-feature=remote-write-receiver"
       - "--enable-feature=exemplar-storage"
       - --config.file=/workspace/prometheus.yml
-    depends_on:
-      - loki
-    logging: *default-logging
-
-  cadvisor:
-    image: gcr.io/cadvisor/cadvisor:v0.47.2
-    container_name: cadvisor
-    ports:
-      - 8080:8080
-    privileged: true
-    volumes:
-      - /:/rootfs:ro
-      - /var/run:/var/run:rw
-      - /sys:/sys:ro
-      - /var/run/docker.sock:/var/run/docker.sock:ro
     depends_on:
       - loki
     logging: *default-logging

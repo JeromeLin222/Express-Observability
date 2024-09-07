@@ -278,7 +278,7 @@
           "editorMode": "code",
           "expr": "express_exception_total{app_name=\"$app_name\"}",
           "instant": false,
-          "legendFormat": "__auto",
+          "legendFormat": "{{method}} {{route}}",
           "range": true,
           "refId": "A"
         }

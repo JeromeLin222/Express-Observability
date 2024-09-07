@@ -44,12 +44,23 @@ app.get('/trigger-error', (req, res, next) => {
 })
 
 
-app.get('/chain', async (req, res, next) => {
+app.get('/chain', async (res, req, next) => {
     try {
-        await axios.get(`http://localhost:8000`)
-        await axios.get(`http://${FIRST_HOST}:8000/simulate-io`)
-        await axios.get(`http://${SECOND_HOST}:8000/simulate-io`)
-        res.sendStatus(200)
+        const currentApp = process.env.APP_NAME || 'app-1'
+        let firstTarget, secondTarget
+
+        if (currentApp === 'app-1') {
+            firstTarget = 'app-2'
+            secondTarget = 'app-3'
+        } else if (currentApp === 'app-2') {
+            firstTarget = 'app-3'
+            secondTarget = 'app-1'
+        } else if (currentApp === 'app-3') {
+            firstTarget = 'app-1'
+            secondTarget = 'app-2'
+        }
+        await axios.get(`http://${firstTarget}:8000/simulate-io`)
+        await axios.get(`http://${secondTarget}:8000/trigger-error`)
     } catch (error) {
         next(error)
     }
@@ -61,5 +72,4 @@ app.use(errorMiddleware)
 
 app.listen(port, () => {
     logger.info(`express server is running on http://localhost:${port}`)
-    // console.log(`express server is running on http://localhost:${port}`)
 })

@@ -1,6 +1,7 @@
 const client = require('prom-client')
 const { context, trace } = require('@opentelemetry/api')
 
+
 const register = client.register
 const appName =  process.env.APP_NAME || "Express_app"
 
@@ -108,8 +109,11 @@ function errorMiddleware(err, req, res, next) {
     const exceptionType = err.constructor.name
     const labels = { method, route, exceptionType, app_name: appName}
     exception.inc(labels)
-    err.message = `${err.message}, "trace_id":"${traceId}", "span_id":"${spanId}",`
-
+    const originalMessage = err.message
+    err.message = `${originalMessage}, "trace_id":"${traceId}", "span_id":"${spanId}",`
+    if (err.stack){
+        err.stack = `${err.stack}\n    "trace_id":"${traceId}", "span_id":"${spanId}"`
+    }
     next(err)
 }
 
